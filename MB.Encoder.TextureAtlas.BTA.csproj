@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <Company>Mana Battery ApS</Company>
+    <Product>MB.Base</Product>
+    <Authors>Mana Battery ApS</Authors>
+    <Copyright>Copyright (c) Mana Battery ApS 2021</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageId>ManaBattery.MB.Encoder.TextureAtlas.BTA</PackageId>
+    <Description>Basic texture atlas encoder.</Description>
+    <Version>0.0.1</Version>
+    <PackageProjectUrl>https://github.com/Unarmed1000/ManaBattery.MB.Encoder.TextureAtlas.BTA</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Unarmed1000/ManaBattery.MB.Encoder.TextureAtlas.BTA</RepositoryUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ManaBattery.MB.Base_Minimal" Version="0.0.2" />
+    <PackageReference Include="ManaBattery.MB.Graphics2_Minimal" Version="0.0.1" />
+  </ItemGroup>
+
+</Project>

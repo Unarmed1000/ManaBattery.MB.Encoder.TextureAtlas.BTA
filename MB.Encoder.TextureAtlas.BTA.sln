@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MB.Encoder.TextureAtlas.BTA", "MB.Encoder.TextureAtlas.BTA.csproj", "{08C2878D-B880-4CFC-9E19-73263F8FF396}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08C2878D-B880-4CFC-9E19-73263F8FF396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C2878D-B880-4CFC-9E19-73263F8FF396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C2878D-B880-4CFC-9E19-73263F8FF396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C2878D-B880-4CFC-9E19-73263F8FF396}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {884CB2DE-07E8-4B59-B70B-294C97D2721D}
+	EndGlobalSection
+EndGlobal
