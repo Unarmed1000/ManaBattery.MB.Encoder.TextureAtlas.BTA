@@ -91,11 +91,13 @@ namespace MB.Encoder.TextureAtlas.BTA
     {
       public readonly int SliceOffset;
       public readonly int SpanOffset;
+      public readonly int GridSpanOffset;
 
-      public Offsets(int sliceOffset, int spanOffset)
+      public Offsets(int sliceOffset, int spanOffset, int gridSpanOffset)
       {
         SliceOffset = sliceOffset;
         SpanOffset = spanOffset;
+        GridSpanOffset = gridSpanOffset;
       }
     }
 
@@ -283,7 +285,7 @@ namespace MB.Encoder.TextureAtlas.BTA
           ref readonly var entry = ref sortedNineSlices[i];
           ref readonly var nineSlice = ref entry.Source.NineSlicePx;
           ref readonly var contentMargin = ref entry.Source.ContentMarginPx;
-          string strFlags = ToFlagsString(entry.Source.Flags);
+          string strFlags = ToFlagsOrString(entry.Source.Flags);
           writer.WriteLine($"{{ {entry.TextureId}, new AtlasNineSliceInfo(new PxThicknessU({nineSlice.Left}, {nineSlice.Top}, {nineSlice.Right}, {nineSlice.Bottom}), new PxThicknessU({contentMargin.Left}, {contentMargin.Top}, {contentMargin.Right}, {contentMargin.Bottom}), {strFlags} ) }},");
         }
 
@@ -304,7 +306,7 @@ namespace MB.Encoder.TextureAtlas.BTA
           int dstIndex = 0;
           for (int i = 0; i < sortedPatches.Length; ++i)
           {
-            finalOffsets[i] = new Offsets(dstIndex, 0);
+            finalOffsets[i] = new Offsets(dstIndex, 0, 0);
 
             ref readonly var entry = ref sortedPatches[i];
             var source = entry.Source;
@@ -335,13 +337,41 @@ namespace MB.Encoder.TextureAtlas.BTA
             ref readonly var entry = ref sortedPatches[i];
             var source = entry.Source;
             var sourceSpans = source.ContentSpans.AsSpan();
-            finalOffsets[i] = new Offsets(finalOffsets[i].SliceOffset, dstIndex);
+            finalOffsets[i] = new Offsets(finalOffsets[i].SliceOffset, dstIndex, finalOffsets[i].GridSpanOffset);
 
 
             writer.WriteLine($"// Patch Id:{entry.TextureId} X:{source.ContentSpans.CountX} Y:{source.ContentSpans.CountY}");
             for (int spanIndex = 0; spanIndex < sourceSpans.Length; ++spanIndex)
             {
               writer.WriteLine($"new ImmutableContentSpan({sourceSpans[spanIndex].Start}, {sourceSpans[spanIndex].Length}), // {dstIndex}");
+              ++dstIndex;
+            }
+
+          }
+          --writer.Indent;
+          writer.WriteLine($"}};");
+        }
+
+        writer.WriteLineNoTabs("");
+
+        {
+          writer.WriteLine($"private static readonly ComplexPatchGridFlags[] g_patchGridFlagSpans = new ComplexPatchGridFlags[]");
+          writer.WriteLine($"{{");
+          ++writer.Indent;
+
+          int dstIndex = 0;
+          for (int i = 0; i < sortedPatches.Length; ++i)
+          {
+            ref readonly var entry = ref sortedPatches[i];
+            var source = entry.Source;
+            var sourceSpans = source.GridFlags.AsSpan();
+            finalOffsets[i] = new Offsets(finalOffsets[i].SliceOffset, finalOffsets[i].SpanOffset, dstIndex);
+
+
+            writer.WriteLine($"// Patch Id:{entry.TextureId} Count:{source.GridFlags.Count}");
+            for (int spanIndex = 0; spanIndex < sourceSpans.Length; ++spanIndex)
+            {
+              writer.WriteLine($"{ToFlagsOrString(sourceSpans[spanIndex]) }, // {dstIndex}");
               ++dstIndex;
             }
 
@@ -368,7 +398,8 @@ namespace MB.Encoder.TextureAtlas.BTA
             int sliceCount = source.Slices.CountX + source.Slices.CountY;
             int spanCount = source.ContentSpans.CountX + source.ContentSpans.CountY;
             writer.WriteLine($"{{ {entry.TextureId}, new ImmutableComplexPatch(new ImmutableComplexPatchSlices(ReadOnlyArraySegment.Create(g_patchSlices, {finalOffsets[i].SliceOffset}, {sliceCount}), {source.Slices.CountX}, {source.Slices.CountY}, {ToString(source.Slices.Flags)}),");
-            writer.WriteLine($"                                new ImmutablePatchContentSpans(ReadOnlyArraySegment.Create(g_patchContentSpans, {finalOffsets[i].SpanOffset}, {spanCount}), {source.ContentSpans.CountX}, {source.ContentSpans.CountY})) }},");
+            writer.WriteLine($"                                new ImmutablePatchContentSpans(ReadOnlyArraySegment.Create(g_patchContentSpans, {finalOffsets[i].SpanOffset}, {spanCount}), {source.ContentSpans.CountX}, {source.ContentSpans.CountY})),");
+            writer.WriteLine($"                                ReadOnlyArraySegment.Create(g_patchGridFlagSpans, {finalOffsets[i].GridSpanOffset}, {source.GridFlags.Count}) }},");
           }
 
           --writer.Indent;
@@ -422,89 +453,53 @@ namespace MB.Encoder.TextureAtlas.BTA
       }
     }
 
-    private static string ToFlagsString(AtlasNineSliceFlags flags)
+    private static string ToFlagsOrString(ComplexPatchGridFlags flags)
     {
-      string result = string.Empty;
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice0Transparent))
-        result = "AtlasNineSliceFlags.Slice0Transparent";
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice1Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice1Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice2Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice2Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice3Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice3Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice4Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice4Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice5Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice5Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice6Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice6Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice7Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice7Transparent");
-      if (flags.IsFlagged(AtlasNineSliceFlags.Slice8Transparent))
-        result = FlagStringOr(result, "AtlasNineSliceFlags.Slice8Transparent");
-      return result.Length <= 0 ? "AtlasNineSliceFlags.None" : result;
+      var stringAllEnabledFlags = flags.ToString();
+      var flagArray = stringAllEnabledFlags.Split(",");
+      for (int i = 0; i < flagArray.Length; ++i)
+      {
+        flagArray[i] = $"{nameof(ComplexPatchGridFlags)}.{flagArray[i].Trim()}";
+      }
+      System.Array.Sort(flagArray);
+      return string.Join("|", flagArray);
     }
 
-    private static string FlagStringOr(string result, string value)
+    private static string ToFlagsOrString(AtlasNineSliceFlags flags)
     {
-      return result.Length <= 0 ? value : $"{result} | {value}";
+      var stringAllEnabledFlags = flags.ToString();
+      var flagArray = stringAllEnabledFlags.Split(",");
+      for (int i=0; i<flagArray.Length; ++i)
+      {
+        flagArray[i] = $"{nameof(AtlasNineSliceFlags)}.{flagArray[i].Trim()}";
+      }
+      System.Array.Sort(flagArray);
+      return string.Join("|", flagArray);
     }
 
     private static string ToString(PatchFlags flags)
     {
-      var result = new List<string>();
-      if (flags.IsFlagged(PatchFlags.MirrorX))
+      var stringAllEnabledFlags = flags.ToString();
+      var flagArray = stringAllEnabledFlags.Split(",");
+      for (int i = 0; i < flagArray.Length; ++i)
       {
-        result.Add("PatchFlags.MirrorX");
-        flags &= ~PatchFlags.MirrorX;
+        flagArray[i] = $"{nameof(PatchFlags)}.{flagArray[i].Trim()}";
       }
-      if (flags.IsFlagged(PatchFlags.MirrorY))
-      {
-        result.Add("PatchFlags.MirrorY");
-        flags &= ~PatchFlags.MirrorY;
-      }
-      if (flags != PatchFlags.None)
-        throw new Exception($"Unsupported flags found: {flags}");
-      return result.Count <= 0 ? "PatchFlags.None" : string.Join('|', result);
+      System.Array.Sort(flagArray);
+      return string.Join("|", flagArray);
     }
+
 
     private static string ToString(ComplexPatchSliceFlags flags)
     {
-      var result = new List<string>();
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Group0))
+      var stringAllEnabledFlags = flags.ToString();
+      var flagArray = stringAllEnabledFlags.Split(",");
+      for (int i = 0; i < flagArray.Length; ++i)
       {
-        result.Add("ComplexPatchSliceFlags.Group0");
-        flags &= ~ComplexPatchSliceFlags.Group0;
+        flagArray[i] = $"{nameof(ComplexPatchSliceFlags)}.{flagArray[i].Trim()}";
       }
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Group1))
-      {
-        result.Add("ComplexPatchSliceFlags.Group1");
-        flags &= ~ComplexPatchSliceFlags.Group1;
-      }
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Group2))
-      {
-        result.Add("ComplexPatchSliceFlags.Group2");
-        flags &= ~ComplexPatchSliceFlags.Group2;
-      }
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Group3))
-      {
-        result.Add("ComplexPatchSliceFlags.Group3");
-        flags &= ~ComplexPatchSliceFlags.Group3;
-      }
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Scale))
-      {
-        result.Add("ComplexPatchSliceFlags.Scale");
-        flags &= ~ComplexPatchSliceFlags.Scale;
-      }
-      if (flags.IsFlagged(ComplexPatchSliceFlags.Transparent))
-      {
-        result.Add("ComplexPatchSliceFlags.Transparent");
-        flags &= ~ComplexPatchSliceFlags.Transparent;
-      }
-      if (flags != ComplexPatchSliceFlags.None)
-        throw new Exception($"Unsupported flags found: {flags}");
-      return result.Count <= 0 ? "ComplexPatchSliceFlags.None" : string.Join('|', result);
+      System.Array.Sort(flagArray);
+      return string.Join("|", flagArray);
     }
 
     private static void AddConstructor(IndentedTextWriter writer, string className, UInt16 dpi)
