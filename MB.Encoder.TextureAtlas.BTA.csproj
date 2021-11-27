@@ -13,7 +13,7 @@
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <PackageId>ManaBattery.MB.Encoder.TextureAtlas.BTA</PackageId>
     <Description>Basic texture atlas encoder.</Description>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <PackageProjectUrl>https://github.com/Unarmed1000/ManaBattery.MB.Encoder.TextureAtlas.BTA</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Unarmed1000/ManaBattery.MB.Encoder.TextureAtlas.BTA</RepositoryUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

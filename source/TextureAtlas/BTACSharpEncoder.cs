@@ -398,8 +398,8 @@ namespace MB.Encoder.TextureAtlas.BTA
             int sliceCount = source.Slices.CountX + source.Slices.CountY;
             int spanCount = source.ContentSpans.CountX + source.ContentSpans.CountY;
             writer.WriteLine($"{{ {entry.TextureId}, new ImmutableComplexPatch(new ImmutableComplexPatchSlices(ReadOnlyArraySegment.Create(g_patchSlices, {finalOffsets[i].SliceOffset}, {sliceCount}), {source.Slices.CountX}, {source.Slices.CountY}, {ToString(source.Slices.Flags)}),");
-            writer.WriteLine($"                                new ImmutablePatchContentSpans(ReadOnlyArraySegment.Create(g_patchContentSpans, {finalOffsets[i].SpanOffset}, {spanCount}), {source.ContentSpans.CountX}, {source.ContentSpans.CountY})),");
-            writer.WriteLine($"                                ReadOnlyArraySegment.Create(g_patchGridFlagSpans, {finalOffsets[i].GridSpanOffset}, {source.GridFlags.Count}) }},");
+            writer.WriteLine($"                               new ImmutablePatchContentSpans(ReadOnlyArraySegment.Create(g_patchContentSpans, {finalOffsets[i].SpanOffset}, {spanCount}), {source.ContentSpans.CountX}, {source.ContentSpans.CountY}),");
+            writer.WriteLine($"                               ReadOnlyArraySegment.Create(g_patchGridFlagSpans, {finalOffsets[i].GridSpanOffset}, {source.GridFlags.Count})) }},");
           }
 
           --writer.Indent;
